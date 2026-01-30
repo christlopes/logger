@@ -17,8 +17,7 @@ export async function GET() {
     });
 
     return NextResponse.json(vocabulary);
-  } catch (error) {
-    console.error("Error fetching vocabulary:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch vocabulary" },
       { status: 500 }
@@ -58,8 +57,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true, count: created.count });
-  } catch (error) {
-    console.error("Error creating vocabulary:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to create vocabulary" },
       { status: 500 }

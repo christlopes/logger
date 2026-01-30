@@ -10,8 +10,7 @@ export async function GET() {
     });
 
     return NextResponse.json(types);
-  } catch (error) {
-    console.error("Error fetching types:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch types" },
       { status: 500 }
@@ -38,9 +37,8 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(entryType, { status: 201 });
-  } catch (error: any) {
-    console.error("Error creating type:", error);
-    if (error.code === "P2002") {
+  } catch (error: unknown) {
+    if (error && typeof error === "object" && "code" in error && error.code === "P2002") {
       return NextResponse.json(
         { error: "Type name already exists" },
         { status: 409 }

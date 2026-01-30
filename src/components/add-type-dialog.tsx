@@ -60,8 +60,7 @@ export function AddTypeDialog({
         const errorData = await response.json();
         setError(errorData.error || "Failed to create type");
       }
-    } catch (error) {
-      console.error("Error creating type:", error);
+    } catch {
       setError("Failed to create type");
     } finally {
       setIsSubmitting(false);

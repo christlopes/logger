@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Combobox } from "@/components/ui/combobox";
@@ -40,8 +39,8 @@ export default function NewEntryPage() {
         const data = await response.json();
         setTypes(data);
       }
-    } catch (error) {
-      console.error("Error fetching types:", error);
+    } catch {
+      // Failed to fetch types
     }
   };
 
@@ -74,8 +73,7 @@ export default function NewEntryPage() {
         const error = await response.json();
         alert(error.error || "Failed to save entry");
       }
-    } catch (error) {
-      console.error("Error saving entry:", error);
+    } catch {
       alert("Failed to save entry");
     } finally {
       setIsSubmitting(false);

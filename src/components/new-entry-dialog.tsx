@@ -35,7 +35,10 @@ interface EntryType {
 interface Entry {
   id: string;
   date: string;
-  type_id: string;
+  type: {
+    id: string;
+    name: string;
+  };
   notes: string | null;
   difficulty: string | null;
 }
@@ -66,7 +69,7 @@ export function NewEntryDialog({
       fetchTypes();
       if (editingEntry) {
         setDate(new Date(editingEntry.date));
-        setTypeId(editingEntry.type_id);
+        setTypeId(editingEntry.type.id);
         setNotes(editingEntry.notes || "");
         setDifficulty(editingEntry.difficulty || "Medium");
         setVocabulary([]); // Vocabulary editing can be added later if needed
@@ -88,8 +91,8 @@ export function NewEntryDialog({
         const data = await response.json();
         setTypes(data);
       }
-    } catch (error) {
-      console.error("Error fetching types:", error);
+    } catch {
+      // Failed to fetch types
     }
   };
 
@@ -133,7 +136,7 @@ export function NewEntryDialog({
             },
             body: JSON.stringify({
               entryId: entryData.id,
-              vocabulary: vocabulary,
+              vocabulary,
             }),
           });
         }
@@ -152,8 +155,7 @@ export function NewEntryDialog({
         const error = await response.json();
         alert(error.error || `Failed to ${isEditing ? "update" : "save"} entry`);
       }
-    } catch (error) {
-      console.error("Error saving entry:", error);
+    } catch {
       alert("Failed to save entry");
     } finally {
       setIsSubmitting(false);

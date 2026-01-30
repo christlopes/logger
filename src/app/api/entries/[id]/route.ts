@@ -3,10 +3,10 @@ import { prisma } from "@/lib/db";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const entry = await prisma.entry.findUnique({
       where: { id },
@@ -24,8 +24,7 @@ export async function GET(
     }
 
     return NextResponse.json(entry);
-  } catch (error) {
-    console.error("Error fetching entry:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch entry" },
       { status: 500 }
@@ -35,10 +34,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { date, typeId, notes, difficulty } = body;
 
@@ -63,8 +62,7 @@ export async function PUT(
     });
 
     return NextResponse.json(entry);
-  } catch (error) {
-    console.error("Error updating entry:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to update entry" },
       { status: 500 }
@@ -74,10 +72,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     await prisma.entry.delete({
       where: {
@@ -86,8 +84,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting entry:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to delete entry" },
       { status: 500 }

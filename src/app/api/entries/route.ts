@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import type { Prisma } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,7 +9,7 @@ export async function GET(request: NextRequest) {
     const searchType = searchParams.get("type");
     const searchDifficulty = searchParams.get("difficulty");
 
-    const where: any = {};
+    const where: Prisma.EntryWhereInput = {};
 
     if (searchDate) {
       const date = new Date(searchDate);
@@ -44,8 +45,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(entries);
-  } catch (error) {
-    console.error("Error fetching entries:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch entries" },
       { status: 500 }
@@ -78,8 +78,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(entry, { status: 201 });
-  } catch (error) {
-    console.error("Error creating entry:", error);
+  } catch {
     return NextResponse.json(
       { error: "Failed to create entry" },
       { status: 500 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { CalendarIcon, SearchIcon, Trash2, Pencil } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -49,12 +49,7 @@ export default function StoragePage() {
   const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
 
-  useEffect(() => {
-    fetchEntries();
-    fetchTypes();
-  }, [searchDate, searchType, searchDifficulty]);
-
-  const fetchEntries = async () => {
+  const fetchEntries = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (searchDate) {
@@ -72,24 +67,29 @@ export default function StoragePage() {
         const data = await response.json();
         setEntries(data);
       }
-    } catch (error) {
-      console.error("Error fetching entries:", error);
+    } catch {
+      // Failed to fetch entries
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchDate, searchType, searchDifficulty]);
 
-  const fetchTypes = async () => {
+  const fetchTypes = useCallback(async () => {
     try {
       const response = await fetch("/api/types");
       if (response.ok) {
         const data = await response.json();
         setTypes(data);
       }
-    } catch (error) {
-      console.error("Error fetching types:", error);
+    } catch {
+      // Failed to fetch types
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchEntries();
+    fetchTypes();
+  }, [fetchEntries, fetchTypes]);
 
   const handleDelete = async (entryId: string) => {
     if (!confirm("Are you sure you want to delete this entry?")) {
@@ -106,8 +106,7 @@ export default function StoragePage() {
       } else {
         alert("Failed to delete entry");
       }
-    } catch (error) {
-      console.error("Error deleting entry:", error);
+    } catch {
       alert("Failed to delete entry");
     }
   };
@@ -271,12 +270,9 @@ export default function StoragePage() {
                       <div className="space-y-3">
                         {typeEntries.map((entry) => {
                           const difficulty = entry.difficulty || "Medium";
-                          const borderColor =
-                            difficulty === "Easy"
-                              ? "border-green-500"
-                              : difficulty === "Hard"
-                              ? "border-red-500"
-                              : "border-yellow-500";
+                          let borderColor = "border-yellow-500";
+                          if (difficulty === "Easy") borderColor = "border-green-500";
+                          else if (difficulty === "Hard") borderColor = "border-red-500";
 
                           return (
                             <div

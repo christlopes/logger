@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -42,8 +41,8 @@ export default function VocabularyPage() {
         const data = await response.json();
         setVocabulary(data);
       }
-    } catch (error) {
-      console.error("Error fetching vocabulary:", error);
+    } catch {
+      // Failed to fetch vocabulary
     } finally {
       setIsLoading(false);
     }
