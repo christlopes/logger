@@ -7,4 +7,5 @@ builder = "nixpacks"
 [deploy]
 # Create or sync tables in Railway Postgres before each deploy
 preDeployCommand = "npm run db:deploy"
-startCommand = "npm run start"
+# Fallback: also run db push before start so tables exist even if preDeploy didn't run
+startCommand = "npm run db:deploy && npm run start"
