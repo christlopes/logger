@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "prisma generate && next build",
-    "start": "prisma generate && (prisma migrate deploy || (prisma migrate resolve --applied 20250130000000_init && prisma migrate deploy)) && node .next/standalone/server.js",
+    "start": "prisma generate && prisma migrate deploy && HOSTNAME=0.0.0.0 node .next/standalone/server.js",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
@@ -18,6 +18,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "db:baseline": "prisma migrate resolve --applied 20250130000000_init",
+    "db:resolve-failed": "prisma migrate resolve --applied 20260118102313_initial_migration && prisma migrate resolve --applied 20260118110157_adding_diffculty_to_entries",
     "db:deploy": "prisma generate && prisma db push",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
