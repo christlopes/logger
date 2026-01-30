@@ -1,0 +1,40 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model EntryType {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  name      String   @unique
+  entries   Entry[]
+}
+
+model Entry {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  date      DateTime @db.Date
+  type_id   String   @db.Uuid
+  type      EntryType @relation(fields: [type_id], references: [id], onDelete: Cascade)
+  notes     String?
+  difficulty String?  @default("Medium")
+  vocabulary Vocabulary[]
+}
+
+model Vocabulary {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  word      String
+  meaning   String
+  entry_id  String   @db.Uuid
+  entry     Entry    @relation(fields: [entry_id], references: [id], onDelete: Cascade)
+}
+
