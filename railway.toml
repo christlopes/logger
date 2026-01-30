@@ -5,7 +5,5 @@
 builder = "nixpacks"
 
 [deploy]
-# Create or sync tables in Railway Postgres before each deploy
-preDeployCommand = "npm run db:deploy"
-# Fallback: also run db push before start so tables exist even if preDeploy didn't run
-startCommand = "npm run db:deploy && npm run start"
+# Tables are created by the start script (prisma db push runs inside "npm start")
+# No custom startCommand needed - default "npm start" runs the script above
