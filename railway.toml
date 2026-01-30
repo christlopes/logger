@@ -5,5 +5,5 @@
 builder = "nixpacks"
 
 [deploy]
-# Tables are created by the start script (prisma db push runs inside "npm start")
-# No custom startCommand needed - default "npm start" runs the script above
+# MUST use "npm start" so Prisma runs migrate deploy and creates tables before the server
+startCommand = "npm start"

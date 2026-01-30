@@ -37,8 +37,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# prisma
-/prisma/migrations
+# prisma (migrations are committed so Railway can run migrate deploy)
+# /prisma/migrations
 
 # IDE
 .vscode
