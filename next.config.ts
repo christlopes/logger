@@ -1,10 +1,6 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  output: "standalone",
-  // Set the workspace root to suppress lockfile warning
-  outputFileTracingRoot: __dirname,
-};
+const nextConfig: NextConfig = {};
 
 export default nextConfig;
 

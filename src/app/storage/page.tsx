@@ -48,8 +48,10 @@ export default function StoragePage() {
   const [isAddTypeOpen, setIsAddTypeOpen] = useState(false);
   const [isNewEntryOpen, setIsNewEntryOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<Entry | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const fetchEntries = useCallback(async () => {
+    setLoadError(null);
     try {
       const params = new URLSearchParams();
       if (searchDate) {
@@ -62,13 +64,23 @@ export default function StoragePage() {
         params.append("difficulty", searchDifficulty);
       }
 
-      const response = await fetch(`/api/entries?${params.toString()}`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      const response = await fetch(`/api/entries?${params.toString()}`, {
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
       if (response.ok) {
         const data = await response.json();
         setEntries(data);
+      } else {
+        setLoadError("Failed to load entries. Check the app is connected to the database.");
       }
-    } catch {
-      // Failed to fetch entries
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to load entries";
+      setLoadError(message.includes("abort") ? "Request timed out. Check your connection and try again." : message);
     } finally {
       setIsLoading(false);
     }
@@ -157,6 +169,11 @@ export default function StoragePage() {
   return (
     <div className="h-full bg-background p-8">
       <div className="max-w-6xl mx-auto">
+        {loadError && (
+          <div className="mb-4 p-4 rounded-md bg-destructive/10 text-destructive text-sm">
+            {loadError}
+          </div>
+        )}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-foreground">Consultation History</h1>
           <div className="flex gap-2">
