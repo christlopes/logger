@@ -1,0 +1,10 @@
+# Railway deploy config: create/update DB tables before starting the app.
+# Uses prisma db push (no migration history). For migrations, use prisma migrate deploy instead.
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+# Create or sync tables in Railway Postgres before each deploy
+preDeployCommand = "npm run db:deploy"
+startCommand = "npm run start"
