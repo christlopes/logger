@@ -47,6 +47,15 @@ model Task {
   due_date     DateTime? @db.Date
   completed    Boolean   @default(false)
   completed_at DateTime?
+  tags         TaskTag[]
+}
+
+model TaskTag {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  name       String   @unique
+  tasks      Task[]
 }
 
 model DateIdea {
