@@ -10,6 +10,7 @@ export async function GET(
 
     const task = await prisma.task.findUnique({
       where: { id },
+      include: { tags: true },
     });
 
     if (!task) {
@@ -35,7 +36,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { title, notes, due_date, completed } = body;
+    const { title, notes, due_date, completed, tags } = body;
 
     if (title !== undefined && (typeof title !== "string" || title.trim().length === 0)) {
       return NextResponse.json(
@@ -52,10 +53,23 @@ export async function PUT(
       data.completed = completed;
       data.completed_at = completed ? new Date() : null;
     }
+    if (tags !== undefined) {
+      const tagConnections = Array.isArray(tags)
+        ? tags
+            .map((t: string) => t.trim())
+            .filter((t: string) => t.length > 0)
+            .map((t: string) => ({
+              where: { name: t },
+              create: { name: t },
+            }))
+        : [];
+      data.tags = { set: [], connectOrCreate: tagConnections };
+    }
 
     const task = await prisma.task.update({
       where: { id },
       data,
+      include: { tags: true },
     });
 
     return NextResponse.json(task);

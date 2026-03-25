@@ -6,6 +6,11 @@ import { format, isBefore, startOfDay } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { TaskDialog } from "@/components/task-dialog";
 
+interface TaskTag {
+  id: string;
+  name: string;
+}
+
 interface Task {
   id: string;
   title: string;
@@ -14,20 +19,25 @@ interface Task {
   completed: boolean;
   completed_at: string | null;
   created_at: string;
+  tags: TaskTag[];
 }
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [allTags, setAllTags] = useState<TaskTag[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  const fetchTasks = useCallback(async () => {
+  const fetchTasks = useCallback(async (tag?: string | null) => {
     setLoadError(null);
     try {
-      const response = await fetch("/api/tasks");
+      const params = new URLSearchParams();
+      if (tag) params.append("tag", tag);
+      const response = await fetch(`/api/tasks?${params.toString()}`);
       if (response.ok) {
         const data = await response.json();
         setTasks(data);
@@ -41,9 +51,22 @@ export default function TasksPage() {
     }
   }, []);
 
+  const fetchTags = useCallback(async () => {
+    try {
+      const response = await fetch("/api/task-tags");
+      if (response.ok) {
+        const data = await response.json();
+        setAllTags(data);
+      }
+    } catch {
+      // Failed to fetch tags
+    }
+  }, []);
+
   useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
+    fetchTasks(selectedTag);
+    fetchTags();
+  }, [fetchTasks, fetchTags, selectedTag]);
 
   const activeTasks = useMemo(() => tasks.filter((t) => !t.completed), [tasks]);
   const completedTasks = useMemo(() => tasks.filter((t) => t.completed), [tasks]);
@@ -56,7 +79,7 @@ export default function TasksPage() {
         body: JSON.stringify({ completed: !currentCompleted }),
       });
       if (response.ok) {
-        fetchTasks();
+        fetchTasks(selectedTag);
       }
     } catch {
       alert("Failed to update task");
@@ -68,13 +91,19 @@ export default function TasksPage() {
     try {
       const response = await fetch(`/api/tasks/${id}`, { method: "DELETE" });
       if (response.ok) {
-        fetchTasks();
+        fetchTasks(selectedTag);
+        fetchTags();
       } else {
         alert("Failed to delete task");
       }
     } catch {
       alert("Failed to delete task");
     }
+  };
+
+  const handleSaved = () => {
+    fetchTasks(selectedTag);
+    fetchTags();
   };
 
   const handleEdit = (task: Task) => {
@@ -121,9 +150,40 @@ export default function TasksPage() {
           </Button>
         </div>
 
+        {/* Tag filter bar */}
+        {allTags.length > 0 && (
+          <div className="flex gap-2 mb-4 flex-wrap">
+            <button
+              onClick={() => setSelectedTag(null)}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                selectedTag === null
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+              }`}
+            >
+              All
+            </button>
+            {allTags.map((tag) => (
+              <button
+                key={tag.id}
+                onClick={() => setSelectedTag(tag.name)}
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  selectedTag === tag.name
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                }`}
+              >
+                {tag.name}
+              </button>
+            ))}
+          </div>
+        )}
+
         {activeTasks.length === 0 && completedTasks.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground">
-            No tasks yet. Add your first task to get started!
+            {selectedTag
+              ? `No tasks with tag "${selectedTag}".`
+              : "No tasks yet. Add your first task to get started!"}
           </div>
         ) : (
           <>
@@ -140,7 +200,17 @@ export default function TasksPage() {
                     className="h-5 w-5 shrink-0 accent-primary cursor-pointer"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-foreground">{task.title}</div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-foreground">{task.title}</span>
+                      {task.tags?.map((tag) => (
+                        <span
+                          key={tag.id}
+                          className="bg-secondary text-muted-foreground rounded-full px-2 py-0.5 text-xs"
+                        >
+                          {tag.name}
+                        </span>
+                      ))}
+                    </div>
                     {task.notes && (
                       <div className="text-sm text-muted-foreground truncate">
                         {task.notes}
@@ -227,7 +297,7 @@ export default function TasksPage() {
           setIsDialogOpen(open);
           if (!open) setEditingTask(null);
         }}
-        onSaved={fetchTasks}
+        onSaved={handleSaved}
         editingTask={editingTask}
       />
     </div>

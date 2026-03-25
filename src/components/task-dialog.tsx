@@ -21,6 +21,11 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
+interface TaskTag {
+  id: string;
+  name: string;
+}
+
 interface Task {
   id: string;
   title: string;
@@ -28,6 +33,7 @@ interface Task {
   due_date: string | null;
   completed: boolean;
   completed_at: string | null;
+  tags?: TaskTag[];
 }
 
 interface TaskDialogProps {
@@ -46,6 +52,7 @@ export function TaskDialog({
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [tagsInput, setTagsInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -54,10 +61,12 @@ export function TaskDialog({
         setTitle(editingTask.title);
         setNotes(editingTask.notes || "");
         setDueDate(editingTask.due_date ? new Date(editingTask.due_date) : undefined);
+        setTagsInput(editingTask.tags?.map((t) => t.name).join(", ") || "");
       } else {
         setTitle("");
         setNotes("");
         setDueDate(undefined);
+        setTagsInput("");
       }
     }
   }, [open, editingTask]);
@@ -77,6 +86,11 @@ export function TaskDialog({
       const url = isEditing ? `/api/tasks/${editingTask.id}` : "/api/tasks";
       const method = isEditing ? "PUT" : "POST";
 
+      const tags = tagsInput
+        .split(",")
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0);
+
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
@@ -84,6 +98,7 @@ export function TaskDialog({
           title: title.trim(),
           notes: notes.trim() || null,
           due_date: dueDate ? dueDate.toISOString().split("T")[0] : null,
+          tags,
         }),
       });
 
@@ -91,6 +106,7 @@ export function TaskDialog({
         setTitle("");
         setNotes("");
         setDueDate(undefined);
+        setTagsInput("");
         onOpenChange(false);
         onSaved?.();
       } else {
@@ -109,6 +125,7 @@ export function TaskDialog({
       setTitle("");
       setNotes("");
       setDueDate(undefined);
+      setTagsInput("");
     }
     onOpenChange(newOpen);
   };
@@ -187,6 +204,18 @@ export function TaskDialog({
                 </Button>
               )}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="tags" className="text-sm font-medium">
+              Tags
+            </label>
+            <Input
+              id="tags"
+              placeholder="Comma-separated tags..."
+              value={tagsInput}
+              onChange={(e) => setTagsInput(e.target.value)}
+            />
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
