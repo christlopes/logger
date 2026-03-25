@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, FileText } from "lucide-react";
+import { BookOpen, FileText, Bot, BarChart3, CheckSquare, Heart, Link as LinkIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -15,6 +15,31 @@ const navigation = [
     name: "Vocabulary",
     href: "/vocabulary",
     icon: BookOpen,
+  },
+  {
+    name: "AI Assistant",
+    href: "/ai-assistant",
+    icon: Bot,
+  },
+  {
+    name: "Reports",
+    href: "/reports",
+    icon: BarChart3,
+  },
+  {
+    name: "Tasks",
+    href: "/tasks",
+    icon: CheckSquare,
+  },
+  {
+    name: "Date Ideas",
+    href: "/date-ideas",
+    icon: Heart,
+  },
+  {
+    name: "Doc Links",
+    href: "/doc-links",
+    icon: LinkIcon,
   },
 ];
 
