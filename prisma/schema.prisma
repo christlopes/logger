@@ -38,3 +38,42 @@ model Vocabulary {
   entry     Entry    @relation(fields: [entry_id], references: [id], onDelete: Cascade)
 }
 
+model Task {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  title        String
+  notes        String?
+  due_date     DateTime? @db.Date
+  completed    Boolean   @default(false)
+  completed_at DateTime?
+}
+
+model DateIdea {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  name         String
+  description  String?
+  completed    Boolean   @default(false)
+  completed_at DateTime?
+  review       String?
+}
+
+model Tag {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  name       String    @unique
+  doc_links  DocLink[]
+}
+
+model DocLink {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  title       String
+  url         String
+  description String?
+  tags        Tag[]
+}
