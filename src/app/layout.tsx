@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Sidebar } from "@/components/sidebar";
+import { Sidebar, MobileHeader } from "@/components/sidebar";
 
 export const metadata: Metadata = {
   title: "Logger",
@@ -17,7 +17,10 @@ export default function RootLayout({
       <body>
         <div className="flex h-screen overflow-hidden">
           <Sidebar />
-          <main className="flex-1 overflow-y-auto">{children}</main>
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <MobileHeader />
+            <main className="flex-1 overflow-y-auto">{children}</main>
+          </div>
         </div>
       </body>
     </html>
